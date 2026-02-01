@@ -6,55 +6,61 @@
     <title>أبوالحسن الحامدي للصرافة</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #065f46; --bg-light: #f8fafc; --text-light: #1e293b; }
-        .dark { --bg-dark: #0f172a; --text-dark: #f1f5f9; }
-        body { font-family: 'Tajawal', 'Inter', sans-serif; transition: all 0.3s ease; }
-        .card { border-radius: 1.5rem; transition: transform 0.2s; }
-        .card:active { transform: scale(0.98); }
-        .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); }
-        .dark .glass { background: rgba(15, 23, 42, 0.8); }
+        body { font-family: 'Tajawal', sans-serif; transition: background-color 0.4s ease; }
+        
+        /* Smooth Transitions */
+        .fade-in-up { animation: fadeInUp 0.5s ease forwards; }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .input-focus-effect:focus { transform: scale(1.01); box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.1); }
+        .tap-effect:active { transform: scale(0.95); }
+        
+        /* Custom Checkbox as Toggles */
+        .toggle-bg { background: #e5e7eb; transition: background 0.3s; }
+        .dark .toggle-bg { background: #374151; }
+        
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
     </style>
 </head>
-<body class="bg-[#f1f5f9] text-[#1e293b] dark:bg-[#0f172a] dark:text-[#f1f5f9]">
+<body class="bg-gray-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 min-h-screen">
 
-    <nav class="sticky top-0 z-50 glass border-b border-gray-200 dark:border-gray-800 px-4 py-4">
-        <div class="max-w-4xl mx-auto flex justify-between items-center">
-            <div class="flex items-center gap-2">
-                <div class="bg-[#065f46] p-2 rounded-xl text-white shadow-lg shadow-emerald-900/20">
-                    <i data-lucide="refresh-ccw" class="w-5 h-5"></i>
-                </div>
-                <h1 id="nav-title" class="text-lg font-black">أبوالحسن الحامدي</h1>
-            </div>
-            <div class="flex items-center gap-4">
-                <button onclick="toggleLanguage()" id="langBtn" class="text-sm font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-3 py-1.5 rounded-lg">English</button>
-                <button onclick="toggleTheme()" class="p-2 bg-gray-100 dark:bg-gray-800 rounded-full">
-                    <i data-lucide="moon" id="themeIcon" class="w-5 h-5"></i>
-                </button>
-            </div>
+    <header class="p-6 max-w-2xl mx-auto flex justify-between items-center">
+        <div>
+            <h1 class="text-2xl font-black text-emerald-700 dark:text-emerald-500" id="header-title">أبوالحسن الحامدي</h1>
+            <p class="text-xs text-gray-400 font-medium tracking-wide uppercase" id="header-subtitle">التميز في الصرافة</p>
         </div>
-    </nav>
+        <div class="flex gap-3">
+            <button onclick="toggleLang()" class="w-10 h-10 flex items-center justify-center rounded-2xl bg-white dark:bg-slate-900 shadow-sm border border-gray-100 dark:border-slate-800 text-xs font-bold" id="lang-btn">EN</button>
+            <button onclick="toggleTheme()" class="w-10 h-10 flex items-center justify-center rounded-2xl bg-white dark:bg-slate-900 shadow-sm border border-gray-100 dark:border-slate-800">
+                <i data-lucide="sun" id="theme-icon" class="w-5 h-5 text-amber-500"></i>
+            </button>
+        </div>
+    </header>
 
-    <main class="max-w-xl mx-auto px-4 py-8">
+    <main class="max-w-2xl mx-auto px-6 pb-24">
         
-        <div class="bg-white dark:bg-[#1e293b] p-6 card shadow-xl shadow-gray-200/50 dark:shadow-none mb-8 border border-gray-100 dark:border-gray-800">
+        <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 shadow-2xl shadow-gray-200/50 dark:shadow-none border border-white/20 relative overflow-hidden">
             
-            <div class="flex items-center justify-between mb-8 relative">
+            <div class="flex items-center justify-between gap-4 mb-10">
                 <div class="flex-1">
-                    <label id="lbl-from" class="text-[10px] uppercase font-bold text-gray-400 mb-1 block">من</label>
-                    <select id="fromCurrency" onchange="calculate()" class="w-full bg-transparent text-2xl font-black outline-none appearance-none cursor-pointer">
+                    <span class="text-[10px] font-bold text-gray-400 uppercase mb-2 block" id="label-from">من</span>
+                    <select id="fromCurrency" onchange="runCalc()" class="w-full bg-transparent text-2xl font-black outline-none cursor-pointer">
                         <option value="SAR">SAR</option>
                         <option value="USD">USD</option>
                         <option value="YER">YER</option>
                     </select>
                 </div>
-                <button onclick="swapCurrencies()" class="bg-emerald-600 text-white p-3 rounded-full shadow-lg hover:rotate-180 transition-all duration-500">
-                    <i data-lucide="arrow-left-right" class="w-5 h-5"></i>
+                <button onclick="swap()" class="tap-effect bg-emerald-600 text-white p-4 rounded-3xl shadow-lg shadow-emerald-500/30 transition-transform hover:rotate-180 duration-500">
+                    <i data-lucide="repeat" class="w-6 h-6"></i>
                 </button>
                 <div class="flex-1 text-left">
-                    <label id="lbl-to" class="text-[10px] uppercase font-bold text-gray-400 mb-1 block">إلى</label>
-                    <select id="toCurrency" onchange="calculate()" class="w-full bg-transparent text-2xl font-black outline-none appearance-none cursor-pointer text-left">
+                    <span class="text-[10px] font-bold text-gray-400 uppercase mb-2 block text-left" id="label-to">إلى</span>
+                    <select id="toCurrency" onchange="runCalc()" class="w-full bg-transparent text-2xl font-black outline-none cursor-pointer text-left">
                         <option value="YER">YER</option>
                         <option value="USD">USD</option>
                         <option value="SAR">SAR</option>
@@ -62,188 +68,229 @@
                 </div>
             </div>
 
-            <div class="mb-6">
-                <label id="lbl-amount" class="text-xs font-bold text-emerald-700 dark:text-emerald-500 mb-2 block">المبلغ المراد تحويله</label>
-                <input type="number" id="amount" placeholder="0.00" oninput="calculate()" class="w-full bg-gray-50 dark:bg-gray-900 p-5 rounded-2xl text-3xl font-black border-2 border-transparent focus:border-emerald-500 outline-none transition-all">
+            <div class="mb-10">
+                <label class="text-xs font-bold text-emerald-600 mb-3 block" id="label-amount">المبلغ المُراد تحويله</label>
+                <input type="number" 
+                       inputmode="decimal" 
+                       id="amount" 
+                       placeholder="0.00" 
+                       oninput="runCalc()"
+                       class="input-focus-effect w-full bg-gray-50 dark:bg-slate-800/50 p-6 rounded-[2rem] text-4xl font-black outline-none transition-all border-2 border-transparent focus:border-emerald-500">
             </div>
 
-            <div class="grid grid-cols-2 gap-4 mb-6">
-                <div class="bg-gray-50 dark:bg-gray-900 p-2 rounded-2xl flex gap-1">
-                    <button onclick="setMarket('sanaa')" id="m-sanaa" class="flex-1 py-2 text-xs font-bold rounded-xl transition-all bg-white dark:bg-gray-800 shadow-sm">صنعاء</button>
-                    <button onclick="setMarket('aden')" id="m-aden" class="flex-1 py-2 text-xs font-bold rounded-xl text-gray-400">عدن</button>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-gray-100 dark:bg-slate-800 p-1.5 rounded-[1.5rem] flex gap-1">
+                    <button id="m-sanaa" onclick="setM('sanaa')" class="flex-1 py-3 text-xs font-bold rounded-xl transition-all bg-white dark:bg-slate-700 shadow-sm" id="btn-sanaa">صنعاء</button>
+                    <button id="m-aden" onclick="setM('aden')" class="flex-1 py-3 text-xs font-bold rounded-xl text-gray-400" id="btn-aden">عدن</button>
                 </div>
-                <div class="bg-gray-50 dark:bg-gray-900 p-2 rounded-2xl flex gap-1">
-                    <button onclick="setType('buy')" id="t-buy" class="flex-1 py-2 text-xs font-bold rounded-xl transition-all bg-white dark:bg-gray-800 shadow-sm">شراء</button>
-                    <button onclick="setType('sell')" id="t-sell" class="flex-1 py-2 text-xs font-bold rounded-xl text-gray-400">بيع</button>
-                </div>
-            </div>
-
-            <div id="resultBox" class="hidden animate-pulse bg-emerald-50 dark:bg-emerald-900/20 p-6 rounded-[2rem] border border-emerald-100 dark:border-emerald-800 text-center">
-                <p id="rateUsed" class="text-[10px] text-emerald-600 font-bold mb-1"></p>
-                <div class="text-4xl font-black text-emerald-800 dark:text-emerald-100 flex items-center justify-center gap-2">
-                    <span id="finalValue">0.00</span>
-                    <span id="finalCurrency" class="text-sm opacity-50">YER</span>
-                </div>
-                <div class="flex gap-2 mt-4 justify-center">
-                    <button onclick="copyResult()" class="p-2 bg-white dark:bg-gray-800 rounded-lg shadow-sm"><i data-lucide="copy" class="w-4 h-4 text-gray-500"></i></button>
-                    <button onclick="saveToNotesFromResult()" class="p-2 bg-white dark:bg-gray-800 rounded-lg shadow-sm"><i data-lucide="plus" class="w-4 h-4 text-emerald-600"></i></button>
+                <div class="bg-gray-100 dark:bg-slate-800 p-1.5 rounded-[1.5rem] flex gap-1">
+                    <button id="t-buy" onclick="setT('buy')" class="flex-1 py-3 text-xs font-bold rounded-xl transition-all bg-white dark:bg-slate-700 shadow-sm" id="btn-buy">شراء</button>
+                    <button id="t-sell" onclick="setT('sell')" class="flex-1 py-3 text-xs font-bold rounded-xl text-gray-400" id="btn-sell">بيع</button>
                 </div>
             </div>
         </div>
 
-        <div class="space-y-4">
-            <div class="flex justify-between items-center">
-                <h2 id="sec-notes" class="font-black text-xl">ملاحظاتي</h2>
-                <button onclick="toggleNoteForm()" class="bg-emerald-600 text-white px-4 py-2 rounded-xl text-xs font-bold">+ ملاحظة</button>
+        <div id="result-card" class="hidden mt-8 fade-in-up">
+            <div class="bg-emerald-600 rounded-[2.5rem] p-8 text-white shadow-xl shadow-emerald-500/20 relative overflow-hidden">
+                <div class="relative z-10 text-center">
+                    <p id="rate-msg" class="text-xs text-emerald-100 mb-2 opacity-80 font-medium"></p>
+                    <div class="flex items-center justify-center gap-3">
+                        <span id="res-val" class="text-5xl font-black">0.00</span>
+                        <span id="res-cur" class="text-xl font-bold opacity-70">YER</span>
+                    </div>
+                </div>
+                <div class="flex justify-center gap-3 mt-8 relative z-10">
+                    <button onclick="copyRes()" class="tap-effect bg-white/20 hover:bg-white/30 p-4 rounded-2xl backdrop-blur-md transition-all">
+                        <i data-lucide="copy" class="w-5 h-5 text-white"></i>
+                    </button>
+                    <button onclick="shareWA()" class="tap-effect bg-white text-emerald-700 font-bold px-6 py-4 rounded-2xl flex items-center gap-2 shadow-lg">
+                        <i data-lucide="share-2" class="w-5 h-5"></i>
+                        <span id="share-text">مشاركة النتيجة</span>
+                    </button>
+                    <button onclick="saveResultToNote()" class="tap-effect bg-emerald-800 text-white p-4 rounded-2xl transition-all">
+                        <i data-lucide="plus-square" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-12">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-black flex items-center gap-2">
+                    <i data-lucide="book-open" class="text-emerald-600"></i>
+                    <span id="notes-title">ملاحظاتي</span>
+                </h3>
+                <button onclick="openForm()" class="tap-effect bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 px-5 py-2.5 rounded-2xl text-xs font-black" id="add-note-btn">+ جديد</button>
             </div>
             
-            <div id="noteForm" class="hidden bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-lg mb-4">
-                <input type="text" id="noteTitle" placeholder="العنوان" class="w-full mb-2 p-3 rounded-lg bg-gray-50 dark:bg-gray-900 outline-none">
-                <textarea id="noteContent" placeholder="التفاصيل..." class="w-full p-3 rounded-lg bg-gray-50 dark:bg-gray-900 outline-none h-24"></textarea>
-                <button onclick="saveNote()" class="w-full bg-emerald-600 text-white py-3 rounded-xl mt-2 font-bold">حفظ</button>
+            <div id="note-form" class="hidden fade-in-up mb-6 bg-white dark:bg-slate-900 p-6 rounded-3xl border border-gray-100 dark:border-slate-800">
+                <input type="text" id="n-title" placeholder="العنوان" class="w-full bg-gray-50 dark:bg-slate-800 p-4 rounded-2xl mb-3 outline-none focus:ring-2 ring-emerald-500/20">
+                <textarea id="n-body" placeholder="اكتب تفاصيلك هنا..." class="w-full bg-gray-50 dark:bg-slate-800 p-4 rounded-2xl h-32 outline-none focus:ring-2 ring-emerald-500/20"></textarea>
+                <button onclick="saveN()" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-bold mt-4 shadow-lg shadow-emerald-500/20" id="save-note-btn">حفظ الملاحظة</button>
             </div>
 
-            <div id="notesList" class="grid gap-4"></div>
+            <div id="notes-list" class="grid gap-4"></div>
         </div>
     </main>
 
     <script>
-        // Data & Rates
+        // Rates & Settings
         const rates = {
             sanaa: { USD: { buy: 534, sell: 536 }, SAR: { buy: 139.80, sell: 140.30 } },
             aden: { USD: { buy: 1609, sell: 1620 }, SAR: { buy: 423, sell: 423 } }
         };
 
-        const i18n = {
+        const langData = {
             ar: {
-                nav: "أبوالحسن الحامدي", lblFrom: "من", lblTo: "إلى", lblAmount: "المبلغ المراد تحويله", 
-                sanaa: "صنعاء", aden: "عدن", buy: "شراء", sell: "بيع", notes: "ملاحظاتي",
-                rateMsg: "تم الحساب بسعر {side} {cur} في {market}: {rate}", noteTitle: "عنوان الملاحظة",
-                noteDetails: "التفاصيل...", save: "حفظ"
+                title: "أبوالحسن الحامدي", from: "من", to: "إلى", amount: "المبلغ المراد تحويله",
+                sanaa: "صنعاء", aden: "عدن", buy: "شراء", sell: "بيع", share: "مشاركة عبر واتساب",
+                notes: "ملاحظاتي", add: "+ جديد", rateText: "سعر {side} {cur} في {market}: {rate}",
+                saveNote: "حفظ الملاحظة", titlePH: "العنوان", bodyPH: "التفاصيل..."
             },
             en: {
-                nav: "Al-Hamdi Exchange", lblFrom: "From", lblTo: "To", lblAmount: "Amount to convert", 
-                sanaa: "Sanaa", aden: "Aden", buy: "Buy", sell: "Sell", notes: "Notes",
-                rateMsg: "Calculated at {side} rate for {cur} in {market}: {rate}", noteTitle: "Note Title",
-                noteDetails: "Details...", save: "Save"
+                title: "Al-Hamdi Ex", from: "From", to: "To", amount: "Amount to convert",
+                sanaa: "Sanaa", aden: "Aden", buy: "Buy", sell: "Sell", share: "Share to WhatsApp",
+                notes: "My Notes", add: "+ New", rateText: "{side} rate for {cur} in {market}: {rate}",
+                saveNote: "Save Note", titlePH: "Title", bodyPH: "Details..."
             }
         };
 
         let currentLang = 'ar';
         let market = 'sanaa';
         let type = 'buy';
-        let notes = JSON.parse(localStorage.getItem('notes_db')) || [];
+        let notes = JSON.parse(localStorage.getItem('hamdi_notes_v2')) || [];
 
-        function toggleLanguage() {
+        // Core Functions
+        function toggleLang() {
             currentLang = currentLang === 'ar' ? 'en' : 'ar';
-            document.documentElement.lang = currentLang;
             document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
-            document.getElementById('langBtn').innerText = currentLang === 'ar' ? 'English' : 'العربية';
+            document.getElementById('lang-btn').innerText = currentLang === 'ar' ? 'EN' : 'العربية';
             updateUI();
         }
 
         function updateUI() {
-            const t = i18n[currentLang];
-            document.getElementById('nav-title').innerText = t.nav;
-            document.getElementById('lbl-from').innerText = t.lblFrom;
-            document.getElementById('lbl-to').innerText = t.lblTo;
-            document.getElementById('lbl-amount').innerText = t.lblAmount;
-            document.getElementById('m-sanaa').innerText = t.sanaa;
-            document.getElementById('m-aden').innerText = t.aden;
-            document.getElementById('t-buy').innerText = t.buy;
-            document.getElementById('t-sell').innerText = t.sell;
-            document.getElementById('sec-notes').innerText = t.notes;
-            document.getElementById('noteTitle').placeholder = t.noteTitle;
-            document.getElementById('noteContent').placeholder = t.noteDetails;
-            calculate();
+            const l = langData[currentLang];
+            document.getElementById('header-title').innerText = l.title;
+            document.getElementById('label-from').innerText = l.from;
+            document.getElementById('label-to').innerText = l.to;
+            document.getElementById('label-amount').innerText = l.amount;
+            document.getElementById('m-sanaa').innerText = l.sanaa;
+            document.getElementById('m-aden').innerText = l.aden;
+            document.getElementById('t-buy').innerText = l.buy;
+            document.getElementById('t-sell').innerText = l.sell;
+            document.getElementById('notes-title').innerText = l.notes;
+            document.getElementById('add-note-btn').innerText = l.add;
+            document.getElementById('share-text').innerText = l.share;
+            document.getElementById('save-note-btn').innerText = l.saveNote;
+            document.getElementById('n-title').placeholder = l.titlePH;
+            document.getElementById('n-body').placeholder = l.bodyPH;
+            runCalc();
             renderNotes();
         }
 
-        function calculate() {
+        function runCalc() {
             const amt = parseFloat(document.getElementById('amount').value);
             const from = document.getElementById('fromCurrency').value;
             const to = document.getElementById('toCurrency').value;
-            const resBox = document.getElementById('resultBox');
+            const card = document.getElementById('result-card');
 
-            if (!amt || from === to) { resBox.classList.add('hidden'); return; }
-            resBox.classList.remove('hidden');
+            if (!amt || from === to) { card.classList.add('hidden'); return; }
+            card.classList.remove('hidden');
 
-            let result = 0; let rate = 0;
+            let res = 0; let rateUsed = 0;
             if (from !== 'YER' && to === 'YER') {
-                rate = rates[market][from][type];
-                result = amt * rate;
+                rateUsed = rates[market][from][type];
+                res = amt * rateUsed;
             } else if (from === 'YER' && to !== 'YER') {
-                rate = rates[market][to][type];
-                result = amt / rate;
+                rateUsed = rates[market][to][type];
+                res = amt / rateUsed;
             } else {
                 let toYer = amt * rates[market][from][type];
-                rate = rates[market][to][type];
-                result = toYer / rate;
+                rateUsed = rates[market][to][type];
+                res = toYer / rateUsed;
             }
 
-            document.getElementById('finalValue').innerText = result.toLocaleString(undefined, { maximumFractionDigits: 2 });
-            document.getElementById('finalCurrency').innerText = to;
+            document.getElementById('res-val').innerText = res.toLocaleString(undefined, {maximumFractionDigits: 2});
+            document.getElementById('res-cur').innerText = to;
             
-            const t = i18n[currentLang];
-            let msg = t.rateMsg.replace('{side}', t[type]).replace('{cur}', from).replace('{market}', t[market]).replace('{rate}', rate);
-            document.getElementById('rateUsed').innerText = msg;
+            const l = langData[currentLang];
+            document.getElementById('rate-msg').innerText = l.rateText
+                .replace('{side}', l[type]).replace('{cur}', from).replace('{market}', l[market]).replace('{rate}', rateUsed);
         }
 
-        // State Changers
-        function setMarket(m) { 
+        function setM(m) { 
             market = m; 
-            document.getElementById('m-sanaa').className = m === 'sanaa' ? 'flex-1 py-2 text-xs font-bold rounded-xl transition-all bg-white dark:bg-gray-800 shadow-sm' : 'flex-1 py-2 text-xs font-bold rounded-xl text-gray-400';
-            document.getElementById('m-aden').className = m === 'aden' ? 'flex-1 py-2 text-xs font-bold rounded-xl transition-all bg-white dark:bg-gray-800 shadow-sm' : 'flex-1 py-2 text-xs font-bold rounded-xl text-gray-400';
-            calculate(); 
+            document.getElementById('m-sanaa').className = m === 'sanaa' ? 'flex-1 py-3 text-xs font-bold rounded-xl transition-all bg-white dark:bg-slate-700 shadow-sm' : 'flex-1 py-3 text-xs font-bold rounded-xl text-gray-400';
+            document.getElementById('m-aden').className = m === 'aden' ? 'flex-1 py-3 text-xs font-bold rounded-xl transition-all bg-white dark:bg-slate-700 shadow-sm' : 'flex-1 py-3 text-xs font-bold rounded-xl text-gray-400';
+            runCalc(); 
         }
 
-        function setType(t) { 
+        function setT(t) { 
             type = t; 
-            document.getElementById('t-buy').className = t === 'buy' ? 'flex-1 py-2 text-xs font-bold rounded-xl transition-all bg-white dark:bg-gray-800 shadow-sm' : 'flex-1 py-2 text-xs font-bold rounded-xl text-gray-400';
-            document.getElementById('t-sell').className = t === 'sell' ? 'flex-1 py-2 text-xs font-bold rounded-xl transition-all bg-white dark:bg-gray-800 shadow-sm' : 'flex-1 py-2 text-xs font-bold rounded-xl text-gray-400';
-            calculate(); 
+            document.getElementById('t-buy').className = t === 'buy' ? 'flex-1 py-3 text-xs font-bold rounded-xl transition-all bg-white dark:bg-slate-700 shadow-sm' : 'flex-1 py-3 text-xs font-bold rounded-xl text-gray-400';
+            document.getElementById('t-sell').className = t === 'sell' ? 'flex-1 py-3 text-xs font-bold rounded-xl transition-all bg-white dark:bg-slate-700 shadow-sm' : 'flex-1 py-3 text-xs font-bold rounded-xl text-gray-400';
+            runCalc(); 
         }
 
-        function swapCurrencies() {
+        function swap() {
             const f = document.getElementById('fromCurrency');
             const t = document.getElementById('toCurrency');
             [f.value, t.value] = [t.value, f.value];
-            calculate();
+            runCalc();
+        }
+
+        function shareWA() {
+            const val = document.getElementById('res-val').innerText;
+            const cur = document.getElementById('res-cur').innerText;
+            const msg = document.getElementById('rate-msg').innerText;
+            const text = encodeURIComponent(`*أبوالحسن الحامدي للصرافة*\nالنتيجة: ${val} ${cur}\n${msg}\n_تم التحويل عبر التطبيق الذكي_`);
+            window.open(`https://wa.me/?text=${text}`);
+        }
+
+        function saveResultToNote() {
+            const val = document.getElementById('res-val').innerText;
+            const cur = document.getElementById('res-cur').innerText;
+            const msg = document.getElementById('rate-msg').innerText;
+            document.getElementById('n-title').value = currentLang === 'ar' ? "عملية تحويل" : "Conversion Result";
+            document.getElementById('n-body').value = `${val} ${cur}\n${msg}`;
+            openForm();
         }
 
         // Notes Logic
-        function saveNote() {
-            const title = document.getElementById('noteTitle').value;
-            const content = document.getElementById('noteContent').value;
-            if (!title) return;
-            notes.unshift({ title, content, date: new Date().toLocaleString() });
-            localStorage.setItem('notes_db', JSON.stringify(notes));
+        function saveN() {
+            const title = document.getElementById('n-title').value;
+            const body = document.getElementById('n-body').value;
+            if(!title) return;
+            notes.unshift({ id: Date.now(), title, body, date: new Date().toLocaleDateString() });
+            localStorage.setItem('hamdi_notes_v2', JSON.stringify(notes));
             renderNotes();
-            toggleNoteForm();
+            openForm(); // Close
         }
 
         function renderNotes() {
-            const list = document.getElementById('notesList');
-            list.innerHTML = notes.map((n, i) => `
-                <div class="bg-white dark:bg-gray-800 p-4 rounded-2xl border border-gray-100 dark:border-gray-700">
-                    <div class="flex justify-between font-bold mb-1"><span>${n.title}</span><button onclick="delNote(${i})" class="text-red-400 text-xs">حذف</button></div>
-                    <p class="text-xs text-gray-500">${n.content}</p>
+            const list = document.getElementById('notes-list');
+            list.innerHTML = notes.map(n => `
+                <div class="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-gray-100 dark:border-slate-800 shadow-sm">
+                    <div class="flex justify-between items-start mb-2">
+                        <h4 class="font-bold text-emerald-700 dark:text-emerald-400">${n.title}</h4>
+                        <button onclick="delN(${n.id})" class="text-red-400"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                    </div>
+                    <p class="text-xs text-gray-500 mb-3">${n.body}</p>
+                    <span class="text-[9px] text-gray-300 font-bold">${n.date}</span>
                 </div>
             `).join('');
+            lucide.createIcons();
         }
 
-        function saveToNotesFromResult() {
-            const val = document.getElementById('finalValue').innerText;
-            const cur = document.getElementById('finalCurrency').innerText;
-            const rate = document.getElementById('rateUsed').innerText;
-            document.getElementById('noteTitle').value = currentLang === 'ar' ? 'عملية تحويل' : 'Conversion';
-            document.getElementById('noteContent').value = `${val} ${cur}\n${rate}`;
-            document.getElementById('noteForm').classList.remove('hidden');
+        function delN(id) { notes = notes.filter(n => n.id !== id); localStorage.setItem('hamdi_notes_v2', JSON.stringify(notes)); renderNotes(); }
+        function openForm() { document.getElementById('note-form').classList.toggle('hidden'); }
+        function toggleTheme() { 
+            document.body.classList.toggle('dark'); 
+            const isDark = document.body.classList.contains('dark');
+            document.getElementById('theme-icon').setAttribute('data-lucide', isDark ? 'sun' : 'moon');
+            lucide.createIcons();
         }
-
-        function delNote(i) { notes.splice(i, 1); localStorage.setItem('notes_db', JSON.stringify(notes)); renderNotes(); }
-        function toggleNoteForm() { document.getElementById('noteForm').classList.toggle('hidden'); }
-        function toggleTheme() { document.body.classList.toggle('dark'); }
+        function copyRes() { navigator.clipboard.writeText(document.getElementById('res-val').innerText); alert('تم النسخ!'); }
 
         window.onload = () => { lucide.createIcons(); updateUI(); };
     </script>
