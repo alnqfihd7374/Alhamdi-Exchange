@@ -1,175 +1,429 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" class="">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>أبوالحسن الحامدي للصرافة</title>
+    <title>أبوالحسن الحامدي للصرافة | ذكاء التحويل</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
     <style>
-        body { font-family: 'Tajawal', sans-serif; background-color: #f3f4f6; }
-        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-radius: 1.5rem; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        .tab-active { border-bottom: 4px solid #2563eb; color: #2563eb; }
+        :root {
+            --primary: #065f46; /* Dark Green */
+            --accent: #10b981; /* Emerald */
+        }
+        body { 
+            font-family: 'Tajawal', sans-serif; 
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .dark { background-color: #121212; color: #e5e7eb; }
+        .light { background-color: #f9fafb; color: #111827; }
+        
+        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        .card-shadow { box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); }
+        
+        /* Animations */
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-slide-up { animation: slideUp 0.4s ease-out forwards; }
+        .ripple { position: relative; overflow: hidden; }
+        
+        /* Hide scrollbar */
+        ::-webkit-scrollbar { width: 0px; background: transparent; }
     </style>
 </head>
-<body class="min-h-screen pb-10">
+<body class="light">
 
-    <header class="bg-blue-700 text-white py-8 shadow-lg mb-8">
-        <div class="container mx-auto text-center px-4">
-            <h1 class="text-3xl md:text-4xl font-bold mb-2">أبوالحسن الحامدي للصرافة</h1>
-            <p class="opacity-80">دقة، أمان، وسرعة في التحويل</p>
+    <nav class="sticky top-0 z-50 bg-white/80 dark:bg-black/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 px-4 py-3">
+        <div class="max-w-5xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <div class="bg-emerald-600 p-2 rounded-lg text-white">
+                    <i data-lucide="landmark"></i>
+                </div>
+                <h1 class="text-lg font-black tracking-tight dark:text-white">أبوالحسن الحامدي</h1>
+            </div>
+            <div class="flex items-center gap-3">
+                <button id="langToggle" class="text-sm font-bold text-emerald-600 px-2 uppercase">EN</button>
+                <button id="themeToggle" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                    <i data-lucide="moon" id="themeIcon"></i>
+                </button>
+            </div>
         </div>
-    </header>
+    </nav>
 
-    <main class="container mx-auto max-w-4xl px-4">
+    <main class="max-w-2xl mx-auto px-4 pt-6 pb-32">
         
-        <div class="flex justify-center mb-8 bg-white rounded-xl shadow-sm p-2">
-            <button onclick="switchTab('converter')" id="tab-conv" class="flex-1 py-3 font-bold transition-all tab-active">محول العملات</button>
-            <button onclick="switchTab('notes')" id="tab-notes" class="flex-1 py-3 font-bold transition-all text-gray-500">ملاحظاتي الشخصية</button>
+        <div class="flex justify-between items-center mb-6 text-[10px] md:text-xs text-gray-500 font-medium">
+            <div class="flex items-center gap-1">
+                <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+                مباشر: أسعار صنعاء وعدن
+            </div>
+            <div id="lastUpdate">آخر تحديث: منذ قليل</div>
         </div>
 
-        <div id="converter-section" class="glass-card p-6 md:p-10">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-gray-700 mb-2 font-bold">المبلغ المراد تحويله:</label>
-                        <input type="number" id="amount" placeholder="أدخل المبلغ..." class="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none transition-all text-xl">
-                    </div>
+        <div class="bg-white dark:bg-[#1e1e1e] rounded-[2rem] p-6 card-shadow border border-gray-100 dark:border-gray-800 mb-6 animate-slide-up">
+            
+            <div class="flex items-center justify-between mb-8 relative">
+                <div class="flex-1">
+                    <label class="text-xs text-gray-400 block mb-1">من</label>
+                    <select id="fromCurrency" class="w-full bg-transparent text-2xl font-bold outline-none appearance-none cursor-pointer">
+                        <option value="SAR">SAR (سعودي)</option>
+                        <option value="USD">USD (دولار)</option>
+                        <option value="YER">YER (يمني)</option>
+                    </select>
+                </div>
+                
+                <button id="swapBtn" class="absolute left-1/2 -translate-x-1/2 bg-emerald-600 text-white p-3 rounded-2xl shadow-lg active:scale-90 transition-transform z-10">
+                    <i data-lucide="arrow-left-right" class="w-5 h-5"></i>
+                </button>
 
-                    <div>
-                        <label class="block text-gray-700 mb-2 font-bold">العملة الأصلية:</label>
-                        <select id="fromCurrency" class="w-full p-4 border-2 border-gray-200 rounded-xl outline-none focus:border-blue-500">
-                            <option value="SAR">ريال سعودي (SAR)</option>
-                            <option value="USD">دولار أمريكي (USD)</option>
-                        </select>
-                    </div>
+                <div class="flex-1 text-left">
+                    <label class="text-xs text-gray-400 block mb-1 text-left">إلى</label>
+                    <select id="toCurrency" class="w-full bg-transparent text-2xl font-bold outline-none appearance-none cursor-pointer text-left">
+                        <option value="YER">YER (يمني)</option>
+                        <option value="SAR">SAR (سعودي)</option>
+                        <option value="USD">USD (دولار)</option>
+                    </select>
+                </div>
+            </div>
 
-                    <div>
-                        <label class="block text-gray-700 mb-2 font-bold">نظام الصرف (المنطقة):</label>
-                        <div class="flex gap-4">
-                            <label class="flex-1 cursor-pointer">
-                                <input type="radio" name="region" value="sanaa" checked class="hidden peer">
-                                <div class="p-3 text-center border-2 rounded-xl peer-checked:bg-blue-600 peer-checked:text-white peer-checked:border-blue-600 hover:bg-gray-50 transition-all">صنعاء</div>
-                            </label>
-                            <label class="flex-1 cursor-pointer">
-                                <input type="radio" name="region" value="aden" class="hidden peer">
-                                <div class="p-3 text-center border-2 rounded-xl peer-checked:bg-blue-600 peer-checked:text-white peer-checked:border-blue-600 hover:bg-gray-50 transition-all">عدن</div>
-                            </label>
-                        </div>
-                    </div>
+            <div class="mb-6">
+                <label class="text-xs font-bold text-emerald-700 dark:text-emerald-500 mb-2 block uppercase tracking-widest">المبلغ</label>
+                <input type="number" id="mainAmount" placeholder="0.00" 
+                    class="w-full bg-gray-50 dark:bg-black/20 p-5 rounded-2xl text-3xl font-bold border-2 border-transparent focus:border-emerald-500 outline-none transition-all">
+            </div>
 
-                    <div>
-                        <label class="block text-gray-700 mb-2 font-bold">نوع العملية:</label>
-                        <select id="type" class="w-full p-4 border-2 border-gray-200 rounded-xl outline-none focus:border-blue-500">
-                            <option value="buy">شراء (نشتري منك)</option>
-                            <option value="sell">بيع (نبيع لك)</option>
-                        </select>
+            <div class="grid grid-cols-2 gap-4 mb-8">
+                <div>
+                    <label class="text-[10px] text-gray-400 mb-2 block font-bold">السوق</label>
+                    <div class="flex bg-gray-100 dark:bg-black/40 p-1 rounded-xl">
+                        <button onclick="setMarket('sanaa')" id="btn-sanaa" class="flex-1 py-2 rounded-lg text-xs font-bold transition-all bg-white dark:bg-gray-800 shadow-sm">صنعاء</button>
+                        <button onclick="setMarket('aden')" id="btn-aden" class="flex-1 py-2 rounded-lg text-xs font-bold transition-all text-gray-500">عدن</button>
                     </div>
                 </div>
-
-                <div class="bg-blue-50 rounded-2xl p-6 flex flex-col justify-center items-center border-2 border-dashed border-blue-200">
-                    <span class="text-gray-600 mb-2">المبلغ المعادل بالريال اليمني:</span>
-                    <div id="result" class="text-4xl md:text-5xl font-black text-blue-700">0.00</div>
-                    <span class="mt-2 font-bold text-blue-900">ريال يمني</span>
-                    
-                    <div class="mt-8 w-full space-y-2 text-sm text-gray-500 border-t pt-4">
-                        <p id="rate-info" class="text-center italic">يرجى إدخال المبلغ للحصول على السعر</p>
+                <div>
+                    <label class="text-[10px] text-gray-400 mb-2 block font-bold">العملية</label>
+                    <div class="flex bg-gray-100 dark:bg-black/40 p-1 rounded-xl">
+                        <button onclick="setSide('buy')" id="btn-buy" class="flex-1 py-2 rounded-lg text-xs font-bold transition-all bg-white dark:bg-gray-800 shadow-sm">شراء</button>
+                        <button onclick="setSide('sell')" id="btn-sell" class="flex-1 py-2 rounded-lg text-xs font-bold transition-all text-gray-500">بيع</button>
                     </div>
+                </div>
+            </div>
+
+            <div id="resultCard" class="hidden animate-slide-up bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800 rounded-2xl p-6 text-center">
+                <p id="rateLabel" class="text-xs text-emerald-600 dark:text-emerald-400 mb-2 font-medium"></p>
+                <h2 id="convertedVal" class="text-4xl font-black text-emerald-800 dark:text-emerald-100 mb-1">0.00</h2>
+                <p id="targetCurLabel" class="text-sm font-bold text-emerald-600 opacity-60 mb-4"></p>
+                
+                <div class="flex gap-2 justify-center">
+                    <button onclick="copyResult()" class="flex items-center gap-1 bg-white dark:bg-gray-800 px-4 py-2 rounded-xl text-xs font-bold shadow-sm active:scale-95 transition-all">
+                        <i data-lucide="copy" class="w-3 h-3"></i> نسخ
+                    </button>
+                    <button onclick="shareToWhatsApp()" class="flex items-center gap-1 bg-[#25D366] text-white px-4 py-2 rounded-xl text-xs font-bold shadow-sm active:scale-95 transition-all">
+                        <i data-lucide="share-2" class="w-3 h-3"></i> واتساب
+                    </button>
+                    <button onclick="addCurrentToNotes()" class="flex items-center gap-1 bg-blue-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-sm active:scale-95 transition-all">
+                        <i data-lucide="plus-circle" class="w-3 h-3"></i> للملاحظات
+                    </button>
                 </div>
             </div>
         </div>
 
-        <div id="notes-section" class="glass-card p-6 md:p-10 hidden">
-            <h2 class="text-2xl font-bold mb-4 text-gray-800">ملاحظاتي</h2>
-            <textarea id="note-input" rows="5" class="w-full p-4 border-2 border-gray-200 rounded-xl outline-none focus:border-blue-500 mb-4" placeholder="اكتب ملاحظاتك هنا... سيتم حفظها تلقائياً على متصفحك."></textarea>
-            <div class="flex justify-between items-center">
-                <button onclick="saveNote()" class="bg-green-600 text-white px-8 py-3 rounded-xl hover:bg-green-700 transition-all font-bold">حفظ الملاحظة</button>
-                <span id="save-status" class="text-green-600 font-bold opacity-0">تم الحفظ!</span>
-            </div>
-            <div class="mt-8 border-t pt-6">
-                <h3 class="font-bold mb-2">الملاحظة المحفوظة:</h3>
-                <div id="saved-note-display" class="p-4 bg-gray-50 rounded-lg italic text-gray-700 min-h-[50px]">
-                    لا توجد ملاحظات محفوظة.
+        <div class="grid grid-cols-1 gap-4 mb-10">
+            <div class="bg-blue-50 dark:bg-blue-900/10 p-5 rounded-3xl border border-blue-100 dark:border-blue-800">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-sm font-bold text-blue-800 dark:text-blue-300">مقارنة فرق السعر</h3>
+                    <i data-lucide="arrow-up-down" class="w-4 h-4 text-blue-400"></i>
                 </div>
+                <div id="diffResult" class="text-xs text-blue-600 font-medium">أدخل المبلغ لعرض الفرق بين صنعاء وعدن...</div>
             </div>
         </div>
+
+        <section class="mb-10">
+            <h3 class="font-black text-xl mb-4 flex items-center gap-2">
+                <i data-lucide="history" class="text-emerald-600"></i> سجل العمليات
+            </h3>
+            <div id="historyList" class="space-y-3 mb-6">
+                </div>
+            <div class="bg-white dark:bg-[#1e1e1e] p-4 rounded-3xl card-shadow">
+                <canvas id="priceChart" height="150"></canvas>
+            </div>
+        </section>
+
+        <section id="notesSection" class="pb-10">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-black text-xl flex items-center gap-2">
+                    <i data-lucide="sticky-note" class="text-emerald-600"></i> مفكرة الملاحظات
+                </h3>
+                <button onclick="openNoteModal()" class="bg-emerald-600 text-white p-2 rounded-full shadow-lg">
+                    <i data-lucide="plus"></i>
+                </button>
+            </div>
+            <div id="notesGrid" class="grid grid-cols-1 gap-4">
+                </div>
+        </section>
 
     </main>
 
+    <div class="fixed bottom-0 left-0 right-0 p-4 bg-white/90 dark:bg-black/90 backdrop-blur-xl border-t border-gray-100 dark:border-gray-800 md:hidden z-50">
+        <button onclick="performCalculation()" id="mainCalcBtn" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black text-lg shadow-2xl shadow-emerald-500/40 active:scale-95 transition-all">
+            احسب التحويل الآن
+        </button>
+    </div>
+
+    <div id="noteModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center p-6 z-[100] backdrop-blur-sm">
+        <div class="bg-white dark:bg-gray-900 w-full max-w-md rounded-[2.5rem] p-8 animate-slide-up">
+            <h3 class="text-2xl font-black mb-6">ملاحظة جديدة</h3>
+            <input type="text" id="noteTitle" placeholder="عنوان الملاحظة" class="w-full p-4 rounded-2xl bg-gray-100 dark:bg-gray-800 mb-4 outline-none border-2 border-transparent focus:border-emerald-500">
+            <textarea id="noteContent" rows="4" placeholder="التفاصيل..." class="w-full p-4 rounded-2xl bg-gray-100 dark:bg-gray-800 mb-6 outline-none border-2 border-transparent focus:border-emerald-500"></textarea>
+            <div class="flex gap-3">
+                <button onclick="saveNote()" class="flex-1 bg-emerald-600 text-white py-4 rounded-2xl font-bold">حفظ</button>
+                <button onclick="closeNoteModal()" class="flex-1 bg-gray-200 dark:bg-gray-700 py-4 rounded-2xl font-bold">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // Exchange Rates Data
+        // --- Data & State ---
         const rates = {
-            sanaa: {
-                USD: { buy: 534, sell: 536 },
-                SAR: { buy: 139.80, sell: 140.30 }
-            },
-            aden: {
-                USD: { buy: 1609, sell: 1620 },
-                SAR: { buy: 423, sell: 423 }
-            }
+            sanaa: { USD: { buy: 534, sell: 536 }, SAR: { buy: 139.80, sell: 140.30 } },
+            aden: { USD: { buy: 1609, sell: 1620 }, SAR: { buy: 423, sell: 423 } }
         };
 
-        const amountInput = document.getElementById('amount');
-        const fromCurrency = document.getElementById('fromCurrency');
-        const typeSelect = document.getElementById('type');
-        const resultDisplay = document.getElementById('result');
-        const rateInfo = document.getElementById('rate-info');
+        let currentMarket = 'sanaa';
+        let currentSide = 'buy';
+        let history = JSON.parse(localStorage.getItem('hamdi_history')) || [];
+        let notes = JSON.parse(localStorage.getItem('hamdi_notes')) || [];
+        let isDark = localStorage.getItem('hamdi_theme') === 'dark';
 
-        function calculate() {
-            const amount = parseFloat(amountInput.value) || 0;
-            const region = document.querySelector('input[name="region"]:checked').value;
-            const currency = fromCurrency.value;
-            const type = typeSelect.value;
-
-            const rate = rates[region][currency][type];
-            const total = amount * rate;
-
-            resultDisplay.innerText = total.toLocaleString('en-US', { minimumFractionDigits: 2 });
-            rateInfo.innerText = `سعر الصرف المستخدم: ${rate} ريال يمني لكل 1 ${currency}`;
+        // --- Core Functions ---
+        function setMarket(m) {
+            currentMarket = m;
+            document.querySelectorAll('[id^="btn-"]').forEach(el => {
+                if(el.id.includes(m)) {
+                    el.classList.add('bg-white', 'dark:bg-gray-800', 'shadow-sm');
+                    el.classList.remove('text-gray-500');
+                } else if(el.id === 'btn-sanaa' || el.id === 'btn-aden') {
+                    el.classList.remove('bg-white', 'dark:bg-gray-800', 'shadow-sm');
+                    el.classList.add('text-gray-500');
+                }
+            });
+            performCalculation();
         }
 
-        // Listeners
-        [amountInput, fromCurrency, typeSelect].forEach(el => el.addEventListener('input', calculate));
-        document.querySelectorAll('input[name="region"]').forEach(el => el.addEventListener('change', calculate));
-
-        // Tabs Logic
-        function switchTab(tab) {
-            if (tab === 'converter') {
-                document.getElementById('converter-section').classList.remove('hidden');
-                document.getElementById('notes-section').classList.add('hidden');
-                document.getElementById('tab-conv').classList.add('tab-active');
-                document.getElementById('tab-notes').classList.remove('tab-active');
-                document.getElementById('tab-notes').classList.add('text-gray-500');
-            } else {
-                document.getElementById('converter-section').classList.add('hidden');
-                document.getElementById('notes-section').classList.remove('hidden');
-                document.getElementById('tab-notes').classList.add('tab-active');
-                document.getElementById('tab-conv').classList.remove('tab-active');
-                document.getElementById('tab-conv').classList.add('text-gray-500');
-            }
+        function setSide(s) {
+            currentSide = s;
+            document.querySelectorAll('[id^="btn-"]').forEach(el => {
+                if(el.id.includes(s)) {
+                    el.classList.add('bg-white', 'dark:bg-gray-800', 'shadow-sm');
+                    el.classList.remove('text-gray-500');
+                } else if(el.id === 'btn-buy' || el.id === 'btn-sell') {
+                    el.classList.remove('bg-white', 'dark:bg-gray-800', 'shadow-sm');
+                    el.classList.add('text-gray-500');
+                }
+            });
+            performCalculation();
         }
 
-        // Notes Logic (Local Storage)
-        function saveNote() {
-            const note = document.getElementById('note-input').value;
-            localStorage.setItem('userNote', note);
-            displayNote();
+        function performCalculation() {
+            const amount = parseFloat(document.getElementById('mainAmount').value);
+            const fromCur = document.getElementById('fromCurrency').value;
+            const toCur = document.getElementById('toCurrency').value;
             
-            const status = document.getElementById('save-status');
-            status.style.opacity = '1';
-            setTimeout(() => status.style.opacity = '0', 2000);
-        }
-
-        function displayNote() {
-            const saved = localStorage.getItem('userNote');
-            if (saved) {
-                document.getElementById('saved-note-display').innerText = saved;
-                document.getElementById('note-input').value = saved;
+            if(!amount || fromCur === toCur) {
+                document.getElementById('resultCard').classList.add('hidden');
+                return;
             }
+
+            let result = 0;
+            let rateUsed = 0;
+
+            if (fromCur !== 'YER' && toCur === 'YER') {
+                rateUsed = rates[currentMarket][fromCur][currentSide];
+                result = amount * rateUsed;
+            } else if (fromCur === 'YER' && toCur !== 'YER') {
+                rateUsed = rates[currentMarket][toCur][currentSide];
+                result = amount / rateUsed;
+            } else {
+                // Between USD and SAR via YER as bridge
+                const toYer = amount * rates[currentMarket][fromCur][currentSide];
+                rateUsed = rates[currentMarket][toCur][currentSide];
+                result = toYer / rateUsed;
+            }
+
+            displayResult(result, rateUsed, fromCur, toCur);
+            updateDifference(amount, fromCur, toCur);
+            addToHistory(amount, fromCur, toCur, result);
         }
 
-        // Initial Load
-        displayNote();
+        function displayResult(val, rate, from, to) {
+            const card = document.getElementById('resultCard');
+            const valDisplay = document.getElementById('convertedVal');
+            const rateLabel = document.getElementById('rateLabel');
+            
+            card.classList.remove('hidden');
+            valDisplay.innerText = val.toLocaleString('en-US', { maximumFractionDigits: 2 });
+            document.getElementById('targetCurLabel').innerText = to;
+            
+            const marketName = currentMarket === 'sanaa' ? 'صنعاء' : 'عدن';
+            const sideName = currentSide === 'buy' ? 'شراء' : 'بيع';
+            rateLabel.innerText = `بسعر ${sideName} الـ ${from} في ${marketName}: ${rate}`;
+        }
+
+        function updateDifference(amount, from, to) {
+            if(to !== 'YER') return;
+            const sanaaRate = rates['sanaa'][from][currentSide];
+            const adenRate = rates['aden'][from][currentSide];
+            const diff = Math.abs((amount * sanaaRate) - (amount * adenRate));
+            
+            document.getElementById('diffResult').innerText = 
+                `الفرق بين صنعاء وعدن لنفس المبلغ: ${diff.toLocaleString()} ريال يمني`;
+        }
+
+        // --- UI & Storage ---
+        function swapCurrencies() {
+            const from = document.getElementById('fromCurrency');
+            const to = document.getElementById('toCurrency');
+            const temp = from.value;
+            from.value = to.value;
+            to.value = temp;
+            performCalculation();
+        }
+
+        function toggleTheme() {
+            isDark = !isDark;
+            document.body.className = isDark ? 'dark' : 'light';
+            document.documentElement.classList.toggle('dark', isDark);
+            document.getElementById('themeIcon').setAttribute('data-lucide', isDark ? 'sun' : 'moon');
+            localStorage.setItem('hamdi_theme', isDark ? 'dark' : 'white');
+            lucide.createIcons();
+        }
+
+        function saveNote() {
+            const title = document.getElementById('noteTitle').value;
+            const text = document.getElementById('noteContent').value;
+            if(!title) return;
+
+            const note = {
+                id: Date.now(),
+                title,
+                text,
+                date: new Date().toLocaleString('ar-YE')
+            };
+            notes.unshift(note);
+            localStorage.setItem('hamdi_notes', JSON.stringify(notes));
+            renderNotes();
+            closeNoteModal();
+        }
+
+        function renderNotes() {
+            const container = document.getElementById('notesGrid');
+            container.innerHTML = notes.map(n => `
+                <div class="bg-white dark:bg-[#1e1e1e] p-5 rounded-3xl border border-gray-100 dark:border-gray-800 card-shadow">
+                    <div class="flex justify-between items-start mb-2">
+                        <h4 class="font-bold text-emerald-700 dark:text-emerald-400">${n.title}</h4>
+                        <button onclick="deleteNote(${n.id})" class="text-red-400"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                    </div>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">${n.text}</p>
+                    <div class="text-[10px] text-gray-400">${n.date}</div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function deleteNote(id) {
+            notes = notes.filter(n => n.id !== id);
+            localStorage.setItem('hamdi_notes', JSON.stringify(notes));
+            renderNotes();
+        }
+
+        function addCurrentToNotes() {
+            const val = document.getElementById('convertedVal').innerText;
+            const cur = document.getElementById('targetCurLabel').innerText;
+            const rate = document.getElementById('rateLabel').innerText;
+            
+            document.getElementById('noteTitle').value = `عملية تحويل - ${new Date().toLocaleDateString()}`;
+            document.getElementById('noteContent').value = `النتيجة: ${val} ${cur}\n${rate}`;
+            openNoteModal();
+        }
+
+        function addToHistory(amount, from, to, res) {
+            const entry = {
+                id: Date.now(),
+                desc: `${amount} ${from} ➜ ${res.toFixed(2)} ${to}`,
+                time: new Date().toLocaleTimeString('ar-YE')
+            };
+            history.unshift(entry);
+            if(history.length > 5) history.pop();
+            localStorage.setItem('hamdi_history', JSON.stringify(history));
+            renderHistory();
+        }
+
+        function renderHistory() {
+            const container = document.getElementById('historyList');
+            container.innerHTML = history.map(h => `
+                <div class="flex justify-between items-center bg-gray-50 dark:bg-black/20 p-3 rounded-2xl text-xs">
+                    <span class="font-medium">${h.desc}</span>
+                    <span class="text-gray-400 text-[10px]">${h.time}</span>
+                </div>
+            `).join('');
+        }
+
+        // --- Utility ---
+        function copyResult() {
+            const val = document.getElementById('convertedVal').innerText;
+            navigator.clipboard.writeText(val);
+            alert('تم نسخ النتيجة!');
+        }
+
+        function shareToWhatsApp() {
+            const val = document.getElementById('convertedVal').innerText;
+            const cur = document.getElementById('targetCurLabel').innerText;
+            const text = encodeURIComponent(`تحويل من أبوالحسن الحامدي للصرافة:\nالمبلغ: ${val} ${cur}`);
+            window.open(`https://wa.me/?text=${text}`);
+        }
+
+        function openNoteModal() { document.getElementById('noteModal').classList.remove('hidden'); document.getElementById('noteModal').classList.add('flex'); }
+        function closeNoteModal() { document.getElementById('noteModal').classList.add('hidden'); }
+
+        // --- Chart Initialization ---
+        function initChart() {
+            const ctx = document.getElementById('priceChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['السبت', 'الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'اليوم'],
+                    datasets: [{
+                        label: 'مؤشر سعر عدن (USD)',
+                        data: [1590, 1600, 1605, 1610, 1609, 1609],
+                        borderColor: '#10b981',
+                        tension: 0.4,
+                        fill: true,
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)'
+                    }]
+                },
+                options: {
+                    plugins: { legend: { display: false } },
+                    scales: { y: { display: false }, x: { grid: { display: false } } }
+                }
+            });
+        }
+
+        // --- Initialize ---
+        window.onload = () => {
+            lucide.createIcons();
+            if(isDark) document.documentElement.classList.add('dark');
+            document.body.className = isDark ? 'dark' : 'light';
+            renderNotes();
+            renderHistory();
+            initChart();
+            
+            document.getElementById('swapBtn').onclick = swapCurrencies;
+            document.getElementById('themeToggle').onclick = toggleTheme;
+            document.getElementById('mainAmount').oninput = performCalculation;
+        };
     </script>
 </body>
 </html>
