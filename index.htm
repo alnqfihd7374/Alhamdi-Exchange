@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أبوالحسن الحامدي للصرافة</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Tajawal', sans-serif; background-color: #f3f4f6; }
+        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-radius: 1.5rem; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .tab-active { border-bottom: 4px solid #2563eb; color: #2563eb; }
+    </style>
+</head>
+<body class="min-h-screen pb-10">
+
+    <header class="bg-blue-700 text-white py-8 shadow-lg mb-8">
+        <div class="container mx-auto text-center px-4">
+            <h1 class="text-3xl md:text-4xl font-bold mb-2">أبوالحسن الحامدي للصرافة</h1>
+            <p class="opacity-80">دقة، أمان، وسرعة في التحويل</p>
+        </div>
+    </header>
+
+    <main class="container mx-auto max-w-4xl px-4">
+        
+        <div class="flex justify-center mb-8 bg-white rounded-xl shadow-sm p-2">
+            <button onclick="switchTab('converter')" id="tab-conv" class="flex-1 py-3 font-bold transition-all tab-active">محول العملات</button>
+            <button onclick="switchTab('notes')" id="tab-notes" class="flex-1 py-3 font-bold transition-all text-gray-500">ملاحظاتي الشخصية</button>
+        </div>
+
+        <div id="converter-section" class="glass-card p-6 md:p-10">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-gray-700 mb-2 font-bold">المبلغ المراد تحويله:</label>
+                        <input type="number" id="amount" placeholder="أدخل المبلغ..." class="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none transition-all text-xl">
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-700 mb-2 font-bold">العملة الأصلية:</label>
+                        <select id="fromCurrency" class="w-full p-4 border-2 border-gray-200 rounded-xl outline-none focus:border-blue-500">
+                            <option value="SAR">ريال سعودي (SAR)</option>
+                            <option value="USD">دولار أمريكي (USD)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-700 mb-2 font-bold">نظام الصرف (المنطقة):</label>
+                        <div class="flex gap-4">
+                            <label class="flex-1 cursor-pointer">
+                                <input type="radio" name="region" value="sanaa" checked class="hidden peer">
+                                <div class="p-3 text-center border-2 rounded-xl peer-checked:bg-blue-600 peer-checked:text-white peer-checked:border-blue-600 hover:bg-gray-50 transition-all">صنعاء</div>
+                            </label>
+                            <label class="flex-1 cursor-pointer">
+                                <input type="radio" name="region" value="aden" class="hidden peer">
+                                <div class="p-3 text-center border-2 rounded-xl peer-checked:bg-blue-600 peer-checked:text-white peer-checked:border-blue-600 hover:bg-gray-50 transition-all">عدن</div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-700 mb-2 font-bold">نوع العملية:</label>
+                        <select id="type" class="w-full p-4 border-2 border-gray-200 rounded-xl outline-none focus:border-blue-500">
+                            <option value="buy">شراء (نشتري منك)</option>
+                            <option value="sell">بيع (نبيع لك)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="bg-blue-50 rounded-2xl p-6 flex flex-col justify-center items-center border-2 border-dashed border-blue-200">
+                    <span class="text-gray-600 mb-2">المبلغ المعادل بالريال اليمني:</span>
+                    <div id="result" class="text-4xl md:text-5xl font-black text-blue-700">0.00</div>
+                    <span class="mt-2 font-bold text-blue-900">ريال يمني</span>
+                    
+                    <div class="mt-8 w-full space-y-2 text-sm text-gray-500 border-t pt-4">
+                        <p id="rate-info" class="text-center italic">يرجى إدخال المبلغ للحصول على السعر</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="notes-section" class="glass-card p-6 md:p-10 hidden">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">ملاحظاتي</h2>
+            <textarea id="note-input" rows="5" class="w-full p-4 border-2 border-gray-200 rounded-xl outline-none focus:border-blue-500 mb-4" placeholder="اكتب ملاحظاتك هنا... سيتم حفظها تلقائياً على متصفحك."></textarea>
+            <div class="flex justify-between items-center">
+                <button onclick="saveNote()" class="bg-green-600 text-white px-8 py-3 rounded-xl hover:bg-green-700 transition-all font-bold">حفظ الملاحظة</button>
+                <span id="save-status" class="text-green-600 font-bold opacity-0">تم الحفظ!</span>
+            </div>
+            <div class="mt-8 border-t pt-6">
+                <h3 class="font-bold mb-2">الملاحظة المحفوظة:</h3>
+                <div id="saved-note-display" class="p-4 bg-gray-50 rounded-lg italic text-gray-700 min-h-[50px]">
+                    لا توجد ملاحظات محفوظة.
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // Exchange Rates Data
+        const rates = {
+            sanaa: {
+                USD: { buy: 534, sell: 536 },
+                SAR: { buy: 139.80, sell: 140.30 }
+            },
+            aden: {
+                USD: { buy: 1609, sell: 1620 },
+                SAR: { buy: 423, sell: 423 }
+            }
+        };
+
+        const amountInput = document.getElementById('amount');
+        const fromCurrency = document.getElementById('fromCurrency');
+        const typeSelect = document.getElementById('type');
+        const resultDisplay = document.getElementById('result');
+        const rateInfo = document.getElementById('rate-info');
+
+        function calculate() {
+            const amount = parseFloat(amountInput.value) || 0;
+            const region = document.querySelector('input[name="region"]:checked').value;
+            const currency = fromCurrency.value;
+            const type = typeSelect.value;
+
+            const rate = rates[region][currency][type];
+            const total = amount * rate;
+
+            resultDisplay.innerText = total.toLocaleString('en-US', { minimumFractionDigits: 2 });
+            rateInfo.innerText = `سعر الصرف المستخدم: ${rate} ريال يمني لكل 1 ${currency}`;
+        }
+
+        // Listeners
+        [amountInput, fromCurrency, typeSelect].forEach(el => el.addEventListener('input', calculate));
+        document.querySelectorAll('input[name="region"]').forEach(el => el.addEventListener('change', calculate));
+
+        // Tabs Logic
+        function switchTab(tab) {
+            if (tab === 'converter') {
+                document.getElementById('converter-section').classList.remove('hidden');
+                document.getElementById('notes-section').classList.add('hidden');
+                document.getElementById('tab-conv').classList.add('tab-active');
+                document.getElementById('tab-notes').classList.remove('tab-active');
+                document.getElementById('tab-notes').classList.add('text-gray-500');
+            } else {
+                document.getElementById('converter-section').classList.add('hidden');
+                document.getElementById('notes-section').classList.remove('hidden');
+                document.getElementById('tab-notes').classList.add('tab-active');
+                document.getElementById('tab-conv').classList.remove('tab-active');
+                document.getElementById('tab-conv').classList.add('text-gray-500');
+            }
+        }
+
+        // Notes Logic (Local Storage)
+        function saveNote() {
+            const note = document.getElementById('note-input').value;
+            localStorage.setItem('userNote', note);
+            displayNote();
+            
+            const status = document.getElementById('save-status');
+            status.style.opacity = '1';
+            setTimeout(() => status.style.opacity = '0', 2000);
+        }
+
+        function displayNote() {
+            const saved = localStorage.getItem('userNote');
+            if (saved) {
+                document.getElementById('saved-note-display').innerText = saved;
+                document.getElementById('note-input').value = saved;
+            }
+        }
+
+        // Initial Load
+        displayNote();
+    </script>
+</body>
+</html>
